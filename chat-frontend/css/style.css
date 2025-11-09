@@ -1,0 +1,123 @@
+/* ===== Fondo general ===== */
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #4a69bd, #6a89cc, #82ccdd);
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+/* ===== Contenedor principal ===== */
+.chat-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.chat-container {
+  background: #fff;
+  width: 400px;
+  max-width: 95%;
+  height: 550px;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ===== Encabezado ===== */
+.chat-header {
+  background: #273c75;
+  color: white;
+  padding: 15px;
+  text-align: center;
+  position: relative;
+}
+
+.chat-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.estado {
+  display: block;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+/* ===== Caja del chat ===== */
+.chat-box {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  background: #f5f6fa;
+}
+
+/* ===== Mensajes ===== */
+.mensaje {
+  background: #dcdde1;
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin: 4px 0;
+  max-width: 80%;
+  word-wrap: break-word;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.mensaje.propio {
+  background: #4cd137;
+  color: white;
+  align-self: flex-end;
+}
+
+.mensaje small {
+  display: block;
+  font-size: 0.75rem;
+  opacity: 0.8;
+  margin-top: 3px;
+  text-align: right;
+}
+
+/* ===== Pie de envío ===== */
+.chat-footer {
+  display: flex;
+  gap: 6px;
+  padding: 10px;
+  background: #dcdde1;
+}
+
+.chat-footer input {
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 0.95rem;
+}
+
+#nombre {
+  width: 25%;
+}
+
+#mensaje {
+  flex: 1;
+}
+
+.chat-footer button {
+  background: #273c75;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 15px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.chat-footer button:hover {
+  background: #192a56;
+}
