@@ -1,5 +1,13 @@
-// Conecta al WebSocket (cambia la IP si usas otro equipo)
-const socket = new WebSocket("ws://192.168.100.154:8080/ChatWebSocke/chat");
+// --- INICIO DE LA MODIFICACIÓN ---
+// Conexión al WebSocket usando la IP del servidor.
+// Este método es necesario cuando abres el index.html directamente como un archivo.
+
+// 1. Reemplaza "192.168.1.35" con la IP de la máquina donde corre tu servidor Java.
+// 2. Asegúrate de que el puerto (8080) y el context path (/ChatWebSocke) son correctos.
+const SERVER_IP_Y_PUERTO = "localhost:8080";
+const wsUrl = `ws://${SERVER_IP_Y_PUERTO}/ChatWebSocke/chat`;
+// --- FIN DE LA MODIFICACIÓN ---
+const socket = new WebSocket(wsUrl);
 
 const chat = document.getElementById("chat");
 const estado = document.getElementById("estado");
@@ -7,13 +15,43 @@ const mensajeInput = document.getElementById("mensaje");
 const nombreInput = document.getElementById("nombre");
 const btnEnviar = document.getElementById("btnEnviar");
 
+let messageSentTimestamp; // Variable para registrar el tiempo de envío
+
+mensajeInput.disabled = true;
+btnEnviar.disabled = true;
+
+nombreInput.addEventListener("input", () => {
+    const nombre = nombreInput.value.trim();
+    if (nombre !== "") {
+        mensajeInput.disabled = false;
+        btnEnviar.disabled = false;
+    } else {
+        mensajeInput.disabled = true;
+        btnEnviar.disabled = true;
+    }
+});
+
 socket.onopen = () => {
   estado.textContent = "🟢 Conectado al servidor";
   estado.style.color = "#9fffa3";
+  nombreInput.focus();
 };
 
 socket.onmessage = (event) => {
-  mostrarMensaje(event.data, false);
+  const mensajeRecibido = event.data;
+  const nombreUsuarioActual = nombreInput.value.trim();
+
+  // Extraemos el nombre de usuario del mensaje recibido.
+  // El formato es: "[Usuario | Hora] Mensaje"
+  // Se ignora el emoji "💬 " que añade el servidor.
+  const mensajeLimpio = mensajeRecibido.startsWith("💬 ") ? mensajeRecibido.substring(2) : mensajeRecibido;
+  const match = mensajeLimpio.match(/^\[(.*?)\s\|/);
+  const remitente = match ? match[1] : null;
+
+  // Comparamos si el remitente del mensaje es el usuario actual.
+  const esPropio = (remitente === nombreUsuarioActual);
+
+  mostrarMensaje(mensajeLimpio, esPropio);
 };
 
 socket.onclose = () => {
@@ -21,9 +59,16 @@ socket.onclose = () => {
   estado.style.color = "#ffb3b3";
 };
 
-btnEnviar.addEventListener("click", enviarMensaje);
+btnEnviar.addEventListener("click", (e) => {
+    e.preventDefault();
+    enviarMensaje();
+});
+
 mensajeInput.addEventListener("keypress", (e) => {
-  if (e.key === "Enter") enviarMensaje();
+  if (e.key === "Enter") {
+    e.preventDefault();
+    enviarMensaje();
+  }
 });
 
 function enviarMensaje() {
@@ -34,21 +79,38 @@ function enviarMensaje() {
 
   const hora = new Date().toLocaleTimeString("es-EC", { hour: "2-digit", minute: "2-digit" });
   const texto = `[${nombre} | ${hora}] ${mensaje}`;
+  
+  messageSentTimestamp = performance.now(); // Registra el tiempo antes de enviar
   socket.send(texto);
 
-  mostrarMensaje(texto, true);
   mensajeInput.value = "";
+  mensajeInput.focus();
 }
 
 function mostrarMensaje(texto, esPropio) {
   const div = document.createElement("div");
   div.classList.add("mensaje");
-  if (esPropio) div.classList.add("propio");
+  if (esPropio) {
+    div.classList.add("propio");
+    if (messageSentTimestamp) {
+      const timeToLocalDisplay = performance.now() - messageSentTimestamp;
+      console.log(`Tiempo hasta la visualización local: ${timeToLocalDisplay.toFixed(2)} ms`);
+      messageSentTimestamp = null; // Reiniciar para el siguiente mensaje
+    }
+  }
 
   const partes = texto.match(/^\[(.*?)\]\s(.+)$/);
   if (partes) {
     const [_, encabezado, cuerpo] = partes;
-    div.innerHTML = `<strong>${encabezado}</strong><br>${cuerpo}`;
+    
+    const strong = document.createElement("strong");
+    strong.textContent = encabezado;
+    
+    const p = document.createElement("p");
+    p.textContent = cuerpo;
+
+    div.appendChild(strong);
+    div.appendChild(p);
   } else {
     div.textContent = texto;
   }
