@@ -256,7 +256,6 @@
             return;
         }
 
-        // Limpiamos el emoji "💬 " que añade el servidor para poder analizar el mensaje.
         const mensajeLimpio = mensajeCompleto.startsWith("💬 ") ? mensajeCompleto.substring(2) : mensajeCompleto;
 
         // Formato esperado: "14:17 - JEFE: Hola" o "2:17 p. m. - JEFE: Hola"
